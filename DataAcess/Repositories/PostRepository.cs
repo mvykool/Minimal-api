@@ -1,10 +1,7 @@
 ﻿using Application.Abstractions;             //add reference
 using Domain.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+
 
 namespace DataAcess.Repositories
 {
@@ -19,10 +16,23 @@ namespace DataAcess.Repositories
 
         //interfaces
 
-        //CREATE    
+        //GET ALL
+        public async Task<ICollection<Post>> GetAllPosts()
+        {
+            return await _context.Posts.ToListAsync();
+        }
+
+        //GET SINGLE
+        public async Task<Post> GetPostById(int postId)
+        {
+            return await _context.Posts.FirstOrDefaultAsync(p => p.Id == postId);
+        }
+
+
+        //CREATE // POST  
         public async Task<Post> CreatePost(Post toCreate)
         {
-            toCreate.DateCreated = DateTime.Now; 
+            toCreate.DateCreated = DateTime.Now;
             toCreate.LastModified = DateTime.Now;
             _context.Posts.Add(toCreate);
             await _context.SaveChangesAsync();
@@ -30,24 +40,27 @@ namespace DataAcess.Repositories
             return toCreate;
         }
 
-        public Task DeletePost(int postId)
+        //UPDATE
+        public async Task<Post> UpdatePost(string updateContent, int postId)
         {
-            throw new NotImplementedException();
+            var post = await _context.Posts.FirstOrDefaultAsync(p => p.Id == postId);
+            post.LastModified = DateTime.Now;
+            post.Content = updateContent;
+            await _context.SaveChangesAsync();
+            return post;
         }
 
-        public Task<ICollection<Post>> GetAllPosts()
-        {
-            throw new NotImplementedException();
-        }
+        //DELETE
 
-        public Task<Post> GetPostById(int postId)
+        public async Task DeletePost(int postId)
         {
-            throw new NotImplementedException();
-        }
+            var post = await _context.Posts
+                .FirstOrDefaultAsync(p => p.Id == postId);
 
-        public Task<Post> UpdatePost(string updateContent, int postId)
-        {
-            throw new NotImplementedException();
+            if (post == null) return;
+
+            _context.Posts.Remove(post);
+            await _context.SaveChangesAsync();
         }
     }
 }
