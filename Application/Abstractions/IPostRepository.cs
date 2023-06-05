@@ -1,4 +1,5 @@
 ﻿using Domain.Models;     //add domain reference
+using MediatR;
 using System;
 using System.Collections.Generic;
 using System.Linq;
